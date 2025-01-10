@@ -35,19 +35,25 @@ addCardButton.addEventListener('click', () => {
 
 // Add Flashcard to DOM
 function addFlashcardToDOM(front, back) {
+  const flashcardCol = document.createElement('div');
+  flashcardCol.classList.add('col-lg-4', 'col-md-6', 'col-sm-12');
+
   const flashcard = document.createElement('div');
-  flashcard.classList.add('flashcard');
+  flashcard.classList.add('flashcard', 'card');
 
   flashcard.innerHTML = `
-    <div class="flashcard-inner">
+    <div class="flashcard-inner card-body">
       <div class="flashcard-front">${front}</div>
       <div class="flashcard-back">${back}</div>
     </div>
-    <div class="card-buttons">
-      <button class="edit-button">Edit</button>
-      <button class="delete-button">Delete</button>
+    <div class="card-buttons d-flex justify-content-between mt-2">
+      <button class="edit-button btn btn-success btn-sm">Edit</button>
+      <button class="delete-button btn btn-danger btn-sm">Delete</button>
     </div>
   `;
+
+  flashcardContainer.appendChild(flashcardCol);
+  flashcardCol.appendChild(flashcard);
 
   // Add Flip Functionality
   const flashcardInner = flashcard.querySelector('.flashcard-inner');
@@ -62,11 +68,9 @@ function addFlashcardToDOM(front, back) {
     const newBack = prompt('Edit the back text:', back);
 
     if (newFront !== null && newBack !== null && newFront.trim() !== '' && newBack.trim() !== '') {
-      // Update DOM
       flashcard.querySelector('.flashcard-front').textContent = newFront;
       flashcard.querySelector('.flashcard-back').textContent = newBack;
 
-      // Update Local Storage
       updateLocalStorage(front, back, newFront, newBack);
     } else {
       alert("Both fields are required for editing!");
@@ -77,15 +81,10 @@ function addFlashcardToDOM(front, back) {
   const deleteButton = flashcard.querySelector('.delete-button');
   deleteButton.addEventListener('click', () => {
     if (confirm('Are you sure you want to delete this card?')) {
-      // Remove from DOM
       flashcard.remove();
-
-      // Remove from Local Storage
       removeFromLocalStorage(front, back);
     }
   });
-
-  flashcardContainer.appendChild(flashcard);
 }
 
 // Update Local Storage after Edit
