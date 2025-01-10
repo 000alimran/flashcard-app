@@ -108,4 +108,36 @@
     color: white;
     transform: rotateY(180deg);
   }
+/* Edit and Delete Buttons Styling */
+.card-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
   
+  .card-buttons button {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .edit-button {
+    background-color: #4caf50; /* Green for Edit */
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #45a049;
+  }
+  
+  .delete-button {
+    background-color: #f44336; /* Red for Delete */
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #d32f2f;
+  }
+    
