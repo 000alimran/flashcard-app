@@ -1,41 +1,54 @@
-const card = document.querySelector('.card');
-
-card.addEventListener('click', () => {
-    card.classList.toggle('flipped');
-});
+// Elements
+const frontInput = document.getElementById('front-input');
+const backInput = document.getElementById('back-input');
 const addCardButton = document.getElementById('add-card');
-const saveCardsButton = document.getElementById('save-cards');
-let cards = JSON.parse(localStorage.getItem('cards')) || [];
+const flashcardContainer = document.getElementById('flashcard-container');
 
+// Load Flashcards from Local Storage
+document.addEventListener('DOMContentLoaded', () => {
+  const storedCards = JSON.parse(localStorage.getItem('flashcards')) || [];
+  storedCards.forEach(card => addFlashcardToDOM(card.front, card.back));
+});
+
+// Add Card to Local Storage and DOM
 addCardButton.addEventListener('click', () => {
-    const question = prompt('Enter the question:');
-    const answer = prompt('Enter the answer:');
-    if (question && answer) {
-        cards.push({ question, answer });
-        renderCards();
-    }
+  const front = frontInput.value.trim();
+  const back = backInput.value.trim();
+
+  if (front === '' || back === '') {
+    alert('Both fields are required!');
+    return;
+  }
+
+  // Save to Local Storage
+  const storedCards = JSON.parse(localStorage.getItem('flashcards')) || [];
+  storedCards.push({ front, back });
+  localStorage.setItem('flashcards', JSON.stringify(storedCards));
+
+  // Add to DOM
+  addFlashcardToDOM(front, back);
+
+  // Clear inputs
+  frontInput.value = '';
+  backInput.value = '';
 });
 
-saveCardsButton.addEventListener('click', () => {
-    localStorage.setItem('cards', JSON.stringify(cards));
-    alert('Cards saved!');
-});
+// Add Flashcard to DOM
+function addFlashcardToDOM(front, back) {
+  const flashcard = document.createElement('div');
+  flashcard.classList.add('flashcard');
 
-function renderCards() {
-    const container = document.querySelector('.container');
-    container.innerHTML = '';
-    cards.forEach((cardData, index) => {
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card';
-        cardElement.innerHTML = `
-            <div class="front">${cardData.question}</div>
-            <div class="back">${cardData.answer}</div>
-        `;
-        cardElement.addEventListener('click', () => {
-            cardElement.classList.toggle('flipped');
-        });
-        container.appendChild(cardElement);
-    });
+  flashcard.innerHTML = `
+    <div class="flashcard-inner">
+      <div class="flashcard-front">${front}</div>
+      <div class="flashcard-back">${back}</div>
+    </div>
+  `;
+
+  // Flip card on click
+  flashcard.addEventListener('click', () => {
+    flashcard.classList.toggle('flipped');
+  });
+
+  flashcardContainer.appendChild(flashcard);
 }
-
-renderCards();

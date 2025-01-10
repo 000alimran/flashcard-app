@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard Learning App</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard Learning App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="front">Question</div>
-            <div class="back">Answer</div>
-        </div>
-        <button id="add-card">Add Card</button>
-        <button id="save-cards">Save Cards</button>
+  <div class="container">
+    <h1>Flashcard Learning App</h1>
+
+    <!-- Form to Add Flashcards -->
+    <div class="form">
+      <input type="text" id="front-input" placeholder="Front of the card (e.g., Question)" />
+      <input type="text" id="back-input" placeholder="Back of the card (e.g., Answer)" />
+      <button id="add-card">Add Card</button>
     </div>
-    <script src="script.js"></script>
+
+    <!-- Flashcards Display Area -->
+    <div id="flashcard-container"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
