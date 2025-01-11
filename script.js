@@ -1,107 +1,96 @@
-// Elements
-const frontInput = document.getElementById('front-input');
-const backInput = document.getElementById('back-input');
-const addCardButton = document.getElementById('add-card');
-const flashcardContainer = document.getElementById('flashcard-container');
+let flashcards = [];
+let learnedCount = 0;
 
-// Load Flashcards from Local Storage
-document.addEventListener('DOMContentLoaded', () => {
-  const storedCards = JSON.parse(localStorage.getItem('flashcards')) || [];
-  storedCards.forEach(card => addFlashcardToDOM(card.front, card.back));
+// Categories
+const categories = ['Math', 'Science', 'History'];
+const categorySelect = document.getElementById('category-select');
+categories.forEach(category => {
+  const option = document.createElement('option');
+  option.value = category;
+  option.textContent = category;
+  categorySelect.appendChild(option);
 });
 
-// Add Card to Local Storage and DOM
-addCardButton.addEventListener('click', () => {
-  const front = frontInput.value.trim();
-  const back = backInput.value.trim();
+// Add Event Listeners
+document.getElementById('add-card').addEventListener('click', addFlashcard);
+document.getElementById('random-card').addEventListener('click', showRandomCard);
 
-  if (front === '' || back === '') {
-    alert('Both fields are required!');
-    return;
+// Function to Add Flashcard
+function addFlashcard() {
+  const frontText = prompt('Enter text for the front side of the card:');
+  const backText = prompt('Enter text for the back side of the card:');
+  const category = prompt('Enter category for the card (Math, Science, History):');
+
+  if (frontText && backText && categories.includes(category)) {
+    const newCard = { front: frontText, back: backText, learned: false, category: category };
+    flashcards.push(newCard);
+    renderFlashcards();
+  } else {
+    alert('All fields are required and category must be valid!');
   }
-
-  // Save to Local Storage
-  const storedCards = JSON.parse(localStorage.getItem('flashcards')) || [];
-  storedCards.push({ front, back });
-  localStorage.setItem('flashcards', JSON.stringify(storedCards));
-
-  // Add to DOM
-  addFlashcardToDOM(front, back);
-
-  // Clear inputs
-  frontInput.value = '';
-  backInput.value = '';
-});
-
-// Add Flashcard to DOM
-function addFlashcardToDOM(front, back) {
-  const flashcardCol = document.createElement('div');
-  flashcardCol.classList.add('col-lg-4', 'col-md-6', 'col-sm-12');
-
-  const flashcard = document.createElement('div');
-  flashcard.classList.add('flashcard', 'card');
-
-  flashcard.innerHTML = `
-    <div class="flashcard-inner card-body">
-      <div class="flashcard-front">${front}</div>
-      <div class="flashcard-back">${back}</div>
-    </div>
-    <div class="card-buttons d-flex justify-content-between mt-2">
-      <button class="edit-button btn btn-success btn-sm">Edit</button>
-      <button class="delete-button btn btn-danger btn-sm">Delete</button>
-    </div>
-  `;
-
-  flashcardContainer.appendChild(flashcardCol);
-  flashcardCol.appendChild(flashcard);
-
-  // Add Flip Functionality
-  const flashcardInner = flashcard.querySelector('.flashcard-inner');
-  flashcardInner.addEventListener('click', () => {
-    flashcard.classList.toggle('flipped');
-  });
-
-  // Add Edit Functionality
-  const editButton = flashcard.querySelector('.edit-button');
-  editButton.addEventListener('click', () => {
-    const newFront = prompt('Edit the front text:', front);
-    const newBack = prompt('Edit the back text:', back);
-
-    if (newFront !== null && newBack !== null && newFront.trim() !== '' && newBack.trim() !== '') {
-      flashcard.querySelector('.flashcard-front').textContent = newFront;
-      flashcard.querySelector('.flashcard-back').textContent = newBack;
-
-      updateLocalStorage(front, back, newFront, newBack);
-    } else {
-      alert("Both fields are required for editing!");
-    }
-  });
-
-  // Add Delete Functionality
-  const deleteButton = flashcard.querySelector('.delete-button');
-  deleteButton.addEventListener('click', () => {
-    if (confirm('Are you sure you want to delete this card?')) {
-      flashcard.remove();
-      removeFromLocalStorage(front, back);
-    }
-  });
 }
 
-// Update Local Storage after Edit
-function updateLocalStorage(oldFront, oldBack, newFront, newBack) {
-  const storedCards = JSON.parse(localStorage.getItem('flashcards')) || [];
-  const updatedCards = storedCards.map(card => {
-    if (card.front === oldFront && card.back === oldBack) {
-      return { front: newFront, back: newBack };
-    }
-    return card;
+// Render Flashcards
+function renderFlashcards() {
+  const container = document.getElementById('flashcard-container');
+  container.innerHTML = '';
+
+  const selectedCategory = categorySelect.value;
+
+  flashcards.forEach((card, index) => {
+    if (selectedCategory !== 'all' && card.category !== selectedCategory) return;
+
+    const flashcardDiv = document.createElement('div');
+    flashcardDiv.className = 'flashcard';
+
+    // Create front and back divs
+    const frontDiv = document.createElement('div');
+    frontDiv.className = 'flashcard-front';
+    frontDiv.textContent = card.front;
+
+    const backDiv = document.createElement('div');
+    backDiv.className = 'flashcard-back';
+    backDiv.textContent = card.back;
+
+    // Append front and back divs
+    flashcardDiv.appendChild(frontDiv);
+    flashcardDiv.appendChild(backDiv);
+
+    // Add click event to flip the card
+    flashcardDiv.addEventListener('click', () => flipFlashcard(index));
+
+    container.appendChild(flashcardDiv);
   });
-  localStorage.setItem('flashcards', JSON.stringify(updatedCards));
+
+  updateProgress();
 }
 
-// Remove from Local Storage after Delete
-function removeFromLocalStorage(front, back) {
-  const storedCards = JSON.parse(localStorage.getItem('flashcards')) || [];
-  const filteredCards = storedCards.filter(card => card.front !== front || card.back !== back);
-  localStorage.setItem('flashcards', JSON.stringify(filteredCards));
+// Flip Flashcard and Mark as Learned
+function flipFlashcard(index) {
+  const card = document.querySelectorAll('.flashcard')[index];
+  card.classList.toggle('flipped');
+
+  if (!flashcards[index].learned) {
+    flashcards[index].learned = true;
+    learnedCount++;
+    updateProgress();
+  }
+}
+
+// Update Progress Bar
+function updateProgress() {
+  const progressBar = document.getElementById('progress-bar');
+  const progress = (learnedCount / flashcards.length) * 100 || 0;
+  progressBar.style.width = `${progress}%`;
+  progressBar.setAttribute('aria-valuenow', progress.toFixed(0));
+  progressBar.textContent = `${progress.toFixed(0)}%`;
+}
+
+// Show Random Flashcard
+function showRandomCard() {
+  const cards = document.querySelectorAll('.flashcard');
+  if (cards.length === 0) return;
+
+  const randomIndex = Math.floor(Math.random() * cards.length);
+  cards[randomIndex].scrollIntoView({ behavior: 'smooth' });
 }
